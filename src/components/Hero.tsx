@@ -1,5 +1,6 @@
 import { Github, Linkedin, Mail, ChevronDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Noise from '@/components/animations/Noise';
 import heroBg from '@/assets/hero-bg.jpg';
 
 const Hero = () => {
@@ -11,9 +12,9 @@ const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={heroBg} 
-          alt="Futuristic background" 
+        <img
+          src={heroBg}
+          alt="Futuristic background"
           className="w-full h-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
@@ -35,10 +36,12 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 text-center">
         <div className="space-y-8 max-w-4xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass neon-border animate-fade-in">
-            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <span className="text-sm font-medium text-muted-foreground">Open to opportunities</span>
+          {/* Badge with Noise Effect */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass neon-border animate-fade-in relative overflow-hidden">
+            {/* Noise overlay for glitch effect */}
+            <Noise patternAlpha={8} mixBlendMode="overlay" patternRefreshInterval={3} />
+            <span className="w-2 h-2 bg-primary rounded-full animate-pulse relative z-10" />
+            <span className="text-sm font-medium text-muted-foreground relative z-10">Open to opportunities</span>
           </div>
 
           {/* Name */}
@@ -61,14 +64,14 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-4 animate-fade-in delay-400">
-            <Button 
+            <Button
               onClick={scrollToProjects}
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90 neon-glow font-medium px-8"
             >
               View Projects
             </Button>
-            <Button 
+            <Button
               variant="outline"
               size="lg"
               className="border-border hover:bg-muted font-medium px-8"
@@ -80,25 +83,25 @@ const Hero = () => {
 
           {/* Social Links */}
           <div className="flex items-center justify-center gap-6 animate-fade-in delay-500">
-            <a 
-              href="https://github.com/erdemkorkmazdev" 
-              target="_blank" 
+            <a
+              href="https://github.com/erdemkorkmazdev"
+              target="_blank"
               rel="noopener noreferrer"
               className="p-3 rounded-full glass hover:neon-border transition-all duration-300 group"
               aria-label="GitHub"
             >
               <Github className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </a>
-            <a 
-              href="https://linkedin.com/in/erdem-korkmaz-14a3b91b4" 
-              target="_blank" 
+            <a
+              href="https://linkedin.com/in/erdem-korkmaz-14a3b91b4"
+              target="_blank"
               rel="noopener noreferrer"
               className="p-3 rounded-full glass hover:neon-border transition-all duration-300 group"
               aria-label="LinkedIn"
             >
               <Linkedin className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
             </a>
-            <a 
+            <a
               href="mailto:erdemkorkmaz06@gmail.com"
               className="p-3 rounded-full glass hover:neon-border transition-all duration-300 group"
               aria-label="Email"

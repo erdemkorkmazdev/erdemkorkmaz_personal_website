@@ -1,11 +1,24 @@
 import { MapPin, Calendar, Code2 } from 'lucide-react';
+import ProfileCard from '@/components/animations/ProfileCard';
+import OrbBackground from '@/components/animations/OrbBackground';
+import GhostCursor from '@/components/animations/GhostCursor';
+import LaserFlow from '@/components/animations/LaserFlow';
 
 const About = () => {
+  const scrollToContact = () => {
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section id="about" className="py-24 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[128px]" />
-      
+      {/* Orb Background - More prominent */}
+      <div className="absolute inset-0 -z-10">
+        <OrbBackground hue={186} brightness={3} bloomStrength={0.5} />
+      </div>
+
+      {/* Ghost Cursor Effect - Thicker, theme colored */}
+      <GhostCursor color="hsl(186, 100%, 50%)" trailLength={35} lineWidth={5} />
+
       <div className="container mx-auto px-6">
         <div className="max-w-5xl mx-auto">
           {/* Section Header */}
@@ -17,82 +30,107 @@ const About = () => {
           </div>
 
           <div className="grid lg:grid-cols-5 gap-12 items-start">
-            {/* Left - Profile Card */}
+            {/* Left - Profile Card with LaserFlow */}
             <div className="lg:col-span-2">
-              <div className="glass rounded-2xl p-8 neon-border hover-lift">
-                {/* Avatar placeholder */}
-                <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-6">
-                  <span className="text-4xl font-display font-bold text-primary-foreground">EK</span>
-                </div>
+              <ProfileCard
+                name="Erdem Korkmaz"
+                title="Frontend & Mobile Developer"
+                handle="erdemkorkmaz"
+                status="Open to Work"
+                onContactClick={scrollToContact}
+              />
 
-                <div className="text-center space-y-4">
-                  <h3 className="text-2xl font-display font-semibold">Erdem Korkmaz</h3>
-                  <p className="text-muted-foreground">Frontend & Mobile Developer</p>
-                  
-                  <div className="flex flex-wrap justify-center gap-3 pt-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span>Ankara, Türkiye</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      <span>26 years old</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Code2 className="w-4 h-4 text-primary" />
-                      <span>Computer Engineer</span>
-                    </div>
-                  </div>
-                </div>
+              {/* LaserFlow under ProfileCard - Reversed */}
+              <div className="relative h-16 mt-4 overflow-hidden rounded-xl glass-subtle">
+                <LaserFlow
+                  color="hsl(186, 100%, 50%)"
+                  beamCount={4}
+                  speed={2}
+                  beamWidth={2}
+                  reverse={true}
+                />
+              </div>
 
-                {/* Quick stats */}
-                <div className="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-border">
-                  <div className="text-center">
-                    <p className="text-2xl font-display font-bold gradient-text">2+</p>
-                    <p className="text-sm text-muted-foreground">Years Experience</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-display font-bold gradient-text">5+</p>
-                    <p className="text-sm text-muted-foreground">Projects Delivered</p>
-                  </div>
+              {/* Quick stats */}
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="glass-card rounded-xl p-4 text-center hover-lift">
+                  <p className="text-2xl font-display font-bold gradient-text">2+</p>
+                  <p className="text-sm text-muted-foreground">Years Experience</p>
+                </div>
+                <div className="glass-card rounded-xl p-4 text-center hover-lift">
+                  <p className="text-2xl font-display font-bold gradient-text">5+</p>
+                  <p className="text-sm text-muted-foreground">Projects Delivered</p>
                 </div>
               </div>
             </div>
 
             {/* Right - Bio Content */}
             <div className="lg:col-span-3 space-y-6">
-              <p className="text-lg text-foreground/90 leading-relaxed">
-                <span className="text-primary font-semibold">Erdem Korkmaz</span> is a Computer Engineer 
-                and frontend-focused software developer with hands-on experience in{' '}
-                <span className="text-primary">Vue.js</span>, <span className="text-primary">React.js</span>,{' '}
-                <span className="text-secondary">real-time WebSocket systems</span>, and{' '}
-                <span className="text-secondary">AI-driven anomaly detection</span>.
-              </p>
+              <div className="glass-card rounded-2xl p-8">
+                <p className="text-lg text-foreground/90 leading-relaxed">
+                  <span className="text-primary font-semibold">Erdem Korkmaz</span> is a Computer Engineer
+                  and frontend-focused software developer with hands-on experience in{' '}
+                  <span className="text-primary">Vue.js</span>, <span className="text-primary">React.js</span>,{' '}
+                  <span className="text-secondary">real-time WebSocket systems</span>, and{' '}
+                  <span className="text-secondary">AI-driven anomaly detection</span>.
+                </p>
 
-              <p className="text-lg text-foreground/80 leading-relaxed">
-                He develops large-scale monitoring dashboards and intelligent alert systems at{' '}
-                <span className="font-semibold">Enekom</span>, building reactive and responsive UIs 
-                that visualize real-time rail health data from IoT and drone networks.
-              </p>
+                <p className="text-lg text-foreground/80 leading-relaxed mt-4">
+                  He develops large-scale monitoring dashboards and intelligent alert systems at{' '}
+                  <span className="font-semibold">Enekom</span>, building reactive and responsive UIs
+                  that visualize real-time rail health data from IoT and drone networks.
+                </p>
 
-              <p className="text-lg text-foreground/80 leading-relaxed">
-                Erdem is passionate about turning complex data into clean, futuristic user interfaces — 
-                combining engineering precision with design simplicity.
-              </p>
+                <p className="text-lg text-foreground/80 leading-relaxed mt-4">
+                  Erdem is passionate about turning complex data into clean, futuristic user interfaces —
+                  combining engineering precision with design simplicity.
+                </p>
+              </div>
+
+              {/* Info Cards */}
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="glass-card rounded-xl p-4 flex items-center gap-3 hover-lift">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <MapPin className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Location</p>
+                    <p className="text-xs text-muted-foreground">Ankara, Türkiye</p>
+                  </div>
+                </div>
+                <div className="glass-card rounded-xl p-4 flex items-center gap-3 hover-lift">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Calendar className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Age</p>
+                    <p className="text-xs text-muted-foreground">26 years old</p>
+                  </div>
+                </div>
+                <div className="glass-card rounded-xl p-4 flex items-center gap-3 hover-lift">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Code2 className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Degree</p>
+                    <p className="text-xs text-muted-foreground">Computer Engineer</p>
+                  </div>
+                </div>
+              </div>
 
               {/* Languages */}
-              <div className="pt-6">
+              <div className="glass-card rounded-xl p-6">
                 <h4 className="text-sm font-mono text-primary uppercase tracking-widest mb-4">Languages</h4>
-                <div className="flex flex-wrap gap-4">
-                  <div className="px-4 py-2 rounded-lg glass">
+                <div className="flex flex-wrap gap-3">
+                  <div className="px-4 py-2 rounded-lg bg-muted/50 border border-white/10">
                     <span className="text-sm font-medium">English</span>
                     <span className="text-xs text-muted-foreground ml-2">Advanced</span>
                   </div>
-                  <div className="px-4 py-2 rounded-lg glass">
+                  <div className="px-4 py-2 rounded-lg bg-muted/50 border border-white/10">
                     <span className="text-sm font-medium">German</span>
                     <span className="text-xs text-muted-foreground ml-2">Intermediate</span>
                   </div>
-                  <div className="px-4 py-2 rounded-lg glass">
+                  <div className="px-4 py-2 rounded-lg bg-muted/50 border border-white/10">
                     <span className="text-sm font-medium">Turkish</span>
                     <span className="text-xs text-muted-foreground ml-2">Native</span>
                   </div>
@@ -100,11 +138,9 @@ const About = () => {
               </div>
 
               {/* Status */}
-              <div className="pt-4">
-                <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-primary/10 border border-primary/30">
-                  <span className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse" />
-                  <span className="text-sm">Open to relocation and remote roles worldwide</span>
-                </div>
+              <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl glass-card border border-primary/30">
+                <span className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse" />
+                <span className="text-sm">Open to relocation and remote roles worldwide</span>
               </div>
             </div>
           </div>

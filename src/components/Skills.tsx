@@ -1,13 +1,10 @@
-import { 
-  Code2, 
-  Smartphone, 
-  Brain, 
-  Wrench,
-  Layers,
-  Database,
-  Cpu,
-  Globe
+import {
+  Code2,
+  Smartphone,
+  Brain,
+  Wrench
 } from 'lucide-react';
+import ScrollVelocity from '@/components/animations/ScrollVelocity';
 
 const skillCategories = [
   {
@@ -58,15 +55,9 @@ const skillCategories = [
   }
 ];
 
-const techStack = [
-  { name: 'Vue.js', icon: Layers },
-  { name: 'React', icon: Code2 },
-  { name: 'TypeScript', icon: Code2 },
-  { name: 'Flutter', icon: Smartphone },
-  { name: 'Python', icon: Brain },
-  { name: 'Firebase', icon: Database },
-  { name: 'TensorFlow', icon: Cpu },
-  { name: 'WebSocket', icon: Globe }
+const techTexts = [
+  'Vue.js • React.js • TypeScript • Flutter • Firebase • TensorFlow • WebSocket • Python • Dart • HTML5 • CSS3 • Tailwind',
+  'PyTorch • REST API • Git • VS Code • Figma • PostgreSQL • MySQL • Docker • Linux • GSAP • Framer Motion'
 ];
 
 const Skills = () => {
@@ -74,7 +65,7 @@ const Skills = () => {
     <section id="skills" className="py-24 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-[128px]" />
-      
+
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
@@ -91,9 +82,9 @@ const Skills = () => {
           {/* Skill Categories Grid */}
           <div className="grid md:grid-cols-2 gap-6 mb-16">
             {skillCategories.map((category, index) => (
-              <div 
+              <div
                 key={category.title}
-                className="glass rounded-2xl p-8 hover-lift group"
+                className="glass-card rounded-2xl p-8 hover-lift group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Header */}
@@ -116,26 +107,22 @@ const Skills = () => {
               </div>
             ))}
           </div>
-
-          {/* Tech Stack Bar */}
-          <div className="glass rounded-2xl p-8">
-            <h4 className="text-sm font-mono text-primary uppercase tracking-widest mb-6 text-center">
-              Core Technologies
-            </h4>
-            <div className="flex flex-wrap justify-center gap-4">
-              {techStack.map((tech) => (
-                <div 
-                  key={tech.name}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 hover:bg-primary/10 hover:border-primary/30 border border-transparent transition-all duration-300 cursor-default"
-                >
-                  <tech.icon className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">{tech.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* Full-width ScrollVelocity Tech Stack */}
+      <div className="mb-8">
+        <h4 className="text-sm font-mono text-primary uppercase tracking-widest mb-6 text-center">
+          Core Technologies
+        </h4>
+      </div>
+
+      <ScrollVelocity
+        texts={techTexts}
+        velocity={40}
+        className="text-3xl md:text-5xl text-foreground/10 hover:text-foreground/20 transition-colors duration-500"
+        containerClassName="py-8 -mx-6"
+      />
     </section>
   );
 };

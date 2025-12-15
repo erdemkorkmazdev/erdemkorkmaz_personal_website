@@ -3,13 +3,15 @@ import { useEffect, useRef } from 'react';
 interface GhostCursorProps {
   color?: string;
   trailLength?: number;
+  lineWidth?: number;
   className?: string;
 }
 
-const GhostCursor = ({ 
-  color = 'hsl(186, 100%, 50%)', 
-  trailLength = 30,
-  className = '' 
+const GhostCursor = ({
+  color = 'hsl(186, 100%, 50%)',
+  trailLength = 40,
+  lineWidth = 4,
+  className = ''
 }: GhostCursorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const points = useRef<{ x: number; y: number; age: number }[]>([]);
@@ -73,7 +75,7 @@ const GhostCursor = ({
         for (let i = 1; i < points.current.length; i++) {
           const point = points.current[i];
           const prevPoint = points.current[i - 1];
-          
+
           // Smooth curve
           const midX = (prevPoint.x + point.x) / 2;
           const midY = (prevPoint.y + point.y) / 2;
@@ -87,32 +89,46 @@ const GhostCursor = ({
           points.current[points.current.length - 1].y
         );
         gradient.addColorStop(0, 'transparent');
-        gradient.addColorStop(0.5, color);
+        gradient.addColorStop(0.3, color);
         gradient.addColorStop(1, color);
 
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = lineWidth;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.stroke();
 
-        // Draw glow
-        ctx.shadowBlur = 20;
+        // Draw glow layer
+        ctx.shadowBlur = 25;
         ctx.shadowColor = color;
         ctx.stroke();
         ctx.shadowBlur = 0;
       }
 
-      // Draw cursor dot
+      // Draw cursor dot with glow
       if (points.current.length > 0) {
         const lastPoint = points.current[points.current.length - 1];
+
+        // Outer glow
         ctx.beginPath();
-        ctx.arc(lastPoint.x, lastPoint.y, 6, 0, Math.PI * 2);
+        ctx.arc(lastPoint.x, lastPoint.y, lineWidth + 6, 0, Math.PI * 2);
+        ctx.fillStyle = color.replace(')', ', 0.2)').replace('hsl', 'hsla');
+        ctx.fill();
+
+        // Main dot
+        ctx.beginPath();
+        ctx.arc(lastPoint.x, lastPoint.y, lineWidth + 2, 0, Math.PI * 2);
         ctx.fillStyle = color;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 20;
         ctx.shadowColor = color;
         ctx.fill();
         ctx.shadowBlur = 0;
+
+        // Inner bright core
+        ctx.beginPath();
+        ctx.arc(lastPoint.x, lastPoint.y, lineWidth / 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
       }
 
       animationRef.current = requestAnimationFrame(animate);
@@ -125,7 +141,7 @@ const GhostCursor = ({
       parent.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationRef.current);
     };
-  }, [color, trailLength]);
+  }, [color, trailLength, lineWidth]);
 
   return (
     <canvas

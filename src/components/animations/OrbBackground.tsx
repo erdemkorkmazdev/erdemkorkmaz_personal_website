@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface OrbBackgroundProps {
   hue?: number;
   className?: string;
+  brightness?: number;
+  bloomStrength?: number;
 }
 
-const OrbBackground = ({ hue = 200, className = '' }: OrbBackgroundProps) => {
+const OrbBackground = ({
+  hue = 186,
+  className = '',
+  brightness = 2.5,
+  bloomStrength = 0.4
+}: OrbBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const mousePos = useRef({ x: 0.5, y: 0.5 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,73 +46,103 @@ const OrbBackground = ({ hue = 200, className = '' }: OrbBackgroundProps) => {
 
       ctx.clearRect(0, 0, width, height);
 
-      // Create multiple layered gradients for orb effect
-      const orbRadius = size * 0.4;
+      // Create more prominent orb effect
+      const orbRadius = size * 0.35;
 
-      // Outer glow
-      const outerGlow = ctx.createRadialGradient(
+      // Outer bloom/glow - very large and soft
+      const outerBloom = ctx.createRadialGradient(
         centerX, centerY, 0,
-        centerX, centerY, orbRadius * 1.5
+        centerX, centerY, orbRadius * 2.5
       );
-      outerGlow.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.3)`);
-      outerGlow.addColorStop(0.5, `hsla(${hue + 40}, 80%, 50%, 0.15)`);
-      outerGlow.addColorStop(1, 'transparent');
-      
-      ctx.fillStyle = outerGlow;
+      outerBloom.addColorStop(0, `hsla(${hue}, 100%, 80%, ${0.4 * bloomStrength})`);
+      outerBloom.addColorStop(0.3, `hsla(${hue + 20}, 90%, 60%, ${0.25 * bloomStrength})`);
+      outerBloom.addColorStop(0.6, `hsla(${hue + 40}, 80%, 50%, ${0.1 * bloomStrength})`);
+      outerBloom.addColorStop(1, 'transparent');
+
+      ctx.fillStyle = outerBloom;
       ctx.fillRect(0, 0, width, height);
 
-      // Animated inner orb
-      const wobble = Math.sin(time * 2) * 10;
-      const pulse = 1 + Math.sin(time * 3) * 0.05;
+      // Animated wobble and pulse
+      const wobbleX = Math.sin(time * 1.5) * 15;
+      const wobbleY = Math.cos(time * 1.2) * 10;
+      const pulse = 1 + Math.sin(time * 2) * 0.08;
 
-      // Main orb gradient
-      const gradient = ctx.createRadialGradient(
-        centerX + wobble, centerY - wobble * 0.5, 0,
-        centerX, centerY, orbRadius * pulse
+      // Core bright center - very bright white/cyan
+      const core = ctx.createRadialGradient(
+        centerX + wobbleX * 0.5, centerY + wobbleY * 0.5, 0,
+        centerX, centerY, orbRadius * 0.5 * pulse
       );
-      
-      gradient.addColorStop(0, `hsla(${hue + 60}, 100%, 85%, 0.9)`);
-      gradient.addColorStop(0.3, `hsla(${hue + 30}, 90%, 65%, 0.7)`);
-      gradient.addColorStop(0.6, `hsla(${hue}, 80%, 55%, 0.5)`);
-      gradient.addColorStop(0.8, `hsla(${hue - 20}, 70%, 40%, 0.3)`);
-      gradient.addColorStop(1, 'transparent');
+      core.addColorStop(0, `hsla(${hue + 40}, 100%, 98%, ${brightness * 0.4})`);
+      core.addColorStop(0.3, `hsla(${hue + 30}, 100%, 90%, ${brightness * 0.35})`);
+      core.addColorStop(0.6, `hsla(${hue + 20}, 95%, 80%, ${brightness * 0.25})`);
+      core.addColorStop(1, 'transparent');
 
-      ctx.fillStyle = gradient;
+      ctx.fillStyle = core;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, orbRadius * pulse * 1.2, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, orbRadius * 0.6 * pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // Secondary highlight
-      const highlight = ctx.createRadialGradient(
-        centerX - orbRadius * 0.3, centerY - orbRadius * 0.3, 0,
-        centerX, centerY, orbRadius * 0.6
+      // Main orb body
+      const mainOrb = ctx.createRadialGradient(
+        centerX + wobbleX, centerY + wobbleY, 0,
+        centerX, centerY, orbRadius * pulse
       );
-      highlight.addColorStop(0, `hsla(${hue + 60}, 100%, 90%, 0.6)`);
-      highlight.addColorStop(0.5, `hsla(${hue + 40}, 80%, 70%, 0.2)`);
+
+      mainOrb.addColorStop(0, `hsla(${hue + 50}, 100%, 90%, ${brightness * 0.3})`);
+      mainOrb.addColorStop(0.2, `hsla(${hue + 30}, 95%, 75%, ${brightness * 0.25})`);
+      mainOrb.addColorStop(0.4, `hsla(${hue + 15}, 90%, 65%, ${brightness * 0.2})`);
+      mainOrb.addColorStop(0.6, `hsla(${hue}, 85%, 55%, ${brightness * 0.15})`);
+      mainOrb.addColorStop(0.8, `hsla(${hue - 10}, 80%, 45%, ${brightness * 0.08})`);
+      mainOrb.addColorStop(1, 'transparent');
+
+      ctx.fillStyle = mainOrb;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, orbRadius * 1.3 * pulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Highlight shine - top left
+      const highlight = ctx.createRadialGradient(
+        centerX - orbRadius * 0.25 + wobbleX * 0.3,
+        centerY - orbRadius * 0.25 + wobbleY * 0.3,
+        0,
+        centerX, centerY, orbRadius * 0.5
+      );
+      highlight.addColorStop(0, `hsla(${hue + 60}, 100%, 95%, ${brightness * 0.5})`);
+      highlight.addColorStop(0.3, `hsla(${hue + 40}, 90%, 85%, ${brightness * 0.25})`);
+      highlight.addColorStop(0.6, `hsla(${hue + 20}, 80%, 70%, ${brightness * 0.1})`);
       highlight.addColorStop(1, 'transparent');
 
       ctx.fillStyle = highlight;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, orbRadius * pulse, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, orbRadius * 0.8 * pulse, 0, Math.PI * 2);
       ctx.fill();
 
-      // Moving accent
-      const accentX = centerX + Math.cos(time) * orbRadius * 0.4;
-      const accentY = centerY + Math.sin(time * 1.3) * orbRadius * 0.3;
-      
+      // Secondary moving accent
+      const accentAngle = time * 0.8;
+      const accentX = centerX + Math.cos(accentAngle) * orbRadius * 0.3;
+      const accentY = centerY + Math.sin(accentAngle * 1.3) * orbRadius * 0.25;
+
       const accent = ctx.createRadialGradient(
         accentX, accentY, 0,
-        accentX, accentY, orbRadius * 0.4
+        accentX, accentY, orbRadius * 0.35
       );
-      accent.addColorStop(0, `hsla(${hue + 80}, 100%, 80%, 0.4)`);
+      accent.addColorStop(0, `hsla(${hue + 70}, 100%, 85%, ${brightness * 0.35})`);
+      accent.addColorStop(0.5, `hsla(${hue + 50}, 90%, 70%, ${brightness * 0.15})`);
       accent.addColorStop(1, 'transparent');
 
       ctx.fillStyle = accent;
       ctx.beginPath();
-      ctx.arc(accentX, accentY, orbRadius * 0.5, 0, Math.PI * 2);
+      ctx.arc(accentX, accentY, orbRadius * 0.4, 0, Math.PI * 2);
       ctx.fill();
 
-      time += 0.01;
+      // Inner glow ring
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, orbRadius * 0.85 * pulse, 0, Math.PI * 2);
+      ctx.strokeStyle = `hsla(${hue + 40}, 100%, 80%, ${0.15 + Math.sin(time * 3) * 0.05})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      time += 0.015;
       animationRef.current = requestAnimationFrame(draw);
     };
 
@@ -117,21 +152,12 @@ const OrbBackground = ({ hue = 200, className = '' }: OrbBackgroundProps) => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationRef.current);
     };
-  }, [hue]);
+  }, [hue, brightness, bloomStrength]);
 
   return (
     <canvas
       ref={canvasRef}
       className={`absolute inset-0 w-full h-full ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        mousePos.current = {
-          x: (e.clientX - rect.left) / rect.width,
-          y: (e.clientY - rect.top) / rect.height
-        };
-      }}
     />
   );
 };

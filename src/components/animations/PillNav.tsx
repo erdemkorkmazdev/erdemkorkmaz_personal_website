@@ -52,11 +52,23 @@ const PillNav = ({
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 ${className}`}
+      className={`fixed top-4 left-0 right-0 z-50 flex justify-center ${className}`}
     >
-      <div className={`flex items-center gap-2 px-2 py-2 rounded-full glass-strong border border-border/50 transition-all duration-300 ${
-        isScrolled ? 'shadow-lg shadow-primary/5' : ''
-      }`}>
+      <motion.div
+        className={`flex items-center gap-2 px-3 py-2.5 rounded-full transition-all duration-300 ${isScrolled
+            ? 'shadow-xl shadow-primary/10'
+            : ''
+          }`}
+        style={{
+          background: 'rgba(var(--card-rgb, 20, 20, 25), 0.6)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: isScrolled
+            ? '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05)'
+            : 'inset 0 0 0 1px rgba(255, 255, 255, 0.05)'
+        }}
+      >
         {/* Logo */}
         <motion.a
           href="#"
@@ -67,6 +79,9 @@ const PillNav = ({
           className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          style={{
+            boxShadow: '0 0 20px hsl(var(--primary) / 0.3)'
+          }}
         >
           <span className="text-sm font-display font-bold text-primary-foreground">EK</span>
         </motion.a>
@@ -85,12 +100,16 @@ const PillNav = ({
               {hoveredIndex === index && (
                 <motion.div
                   layoutId="pill-bg"
-                  className="absolute inset-0 rounded-full bg-muted"
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
                   initial={false}
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                 />
               )}
-              
+
               <span className="relative z-10">{item.label}</span>
             </motion.button>
           ))}
@@ -99,8 +118,14 @@ const PillNav = ({
         {/* Theme Toggle */}
         <motion.button
           onClick={onThemeToggle}
-          className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-muted transition-colors"
-          whileHover={{ scale: 1.05 }}
+          className="flex items-center justify-center w-10 h-10 rounded-full transition-colors"
+          style={{
+            background: 'rgba(255, 255, 255, 0.05)'
+          }}
+          whileHover={{
+            scale: 1.05,
+            background: 'rgba(255, 255, 255, 0.1)'
+          }}
           whileTap={{ scale: 0.95 }}
         >
           {isDark ? (
@@ -113,7 +138,10 @@ const PillNav = ({
         {/* Mobile Menu Toggle */}
         <motion.button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-muted transition-colors"
+          className="md:hidden flex items-center justify-center w-10 h-10 rounded-full transition-colors"
+          style={{
+            background: 'rgba(255, 255, 255, 0.05)'
+          }}
           whileTap={{ scale: 0.95 }}
         >
           {isMobileMenuOpen ? (
@@ -122,21 +150,27 @@ const PillNav = ({
             <Menu className="w-5 h-5 text-muted-foreground" />
           )}
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* Mobile Menu */}
       <motion.div
         initial={false}
         animate={isMobileMenuOpen ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -10, scale: 0.95 }}
-        className={`md:hidden absolute top-full left-0 right-0 mt-2 p-2 rounded-2xl glass-strong border border-border/50 ${
-          isMobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'
-        }`}
+        className={`md:hidden absolute top-full left-1/2 -translate-x-1/2 mt-2 p-2 rounded-2xl ${isMobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'
+          }`}
+        style={{
+          background: 'rgba(var(--card-rgb, 20, 20, 25), 0.8)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+        }}
       >
         {items.map((item) => (
           <button
             key={item.label}
             onClick={() => scrollToSection(item.href)}
-            className="w-full px-4 py-3 text-left text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-colors"
+            className="w-full px-6 py-3 text-left text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl transition-colors"
           >
             {item.label}
           </button>

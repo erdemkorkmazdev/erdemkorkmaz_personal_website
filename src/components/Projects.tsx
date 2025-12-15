@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ExternalLink, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ExternalLink, ChevronRight, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const projects = [
@@ -52,12 +53,26 @@ const projects = [
 
 const Projects = () => {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const navigate = useNavigate();
+
+  const handleCardClick = (projectId: number) => {
+    if (expandedId === projectId) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(projectId);
+    }
+  };
+
+  const handleViewDetails = (e: React.MouseEvent, projectId: number) => {
+    e.stopPropagation();
+    navigate(`/project/${projectId}`);
+  };
 
   return (
     <section id="projects" className="py-24 relative overflow-hidden bg-muted/30">
       {/* Background decoration */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[128px]" />
-      
+
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
@@ -74,10 +89,10 @@ const Projects = () => {
           {/* Projects Grid */}
           <div className="grid gap-6">
             {projects.map((project, index) => (
-              <div 
+              <div
                 key={project.id}
-                className="glass rounded-2xl overflow-hidden hover-lift group cursor-pointer"
-                onClick={() => setExpandedId(expandedId === project.id ? null : project.id)}
+                className="glass-card rounded-2xl overflow-hidden hover-lift group cursor-pointer"
+                onClick={() => handleCardClick(project.id)}
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Left - Gradient Visual */}
@@ -106,10 +121,9 @@ const Projects = () => {
                           {project.title}
                         </h3>
                       </div>
-                      <ChevronRight 
-                        className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${
-                          expandedId === project.id ? 'rotate-90' : ''
-                        }`}
+                      <ChevronRight
+                        className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${expandedId === project.id ? 'rotate-90' : ''
+                          }`}
                       />
                     </div>
 
@@ -118,18 +132,28 @@ const Projects = () => {
                     </p>
 
                     {/* Expanded Content */}
-                    <div className={`overflow-hidden transition-all duration-300 ${
-                      expandedId === project.id ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
-                    }`}>
+                    <div className={`overflow-hidden transition-all duration-300 ${expandedId === project.id ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
+                      }`}>
                       <p className="text-muted-foreground mb-4">
                         {project.fullDescription}
                       </p>
+
+                      {/* View Details Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="group/btn gap-2 mb-4"
+                        onClick={(e) => handleViewDetails(e, project.id)}
+                      >
+                        View Details
+                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
                     </div>
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag) => (
-                        <span 
+                        <span
                           key={tag}
                           className="px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary"
                         >
@@ -146,9 +170,9 @@ const Projects = () => {
           {/* View More */}
           <div className="mt-12 text-center">
             <Button variant="outline" size="lg" className="group" asChild>
-              <a 
-                href="https://github.com/erdemkorkmazdev" 
-                target="_blank" 
+              <a
+                href="https://github.com/erdemkorkmazdev"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 View More on GitHub

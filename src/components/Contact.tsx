@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import LaserFlow from '@/components/animations/LaserFlow';
 
 const Contact = () => {
   const { toast } = useToast();
@@ -42,7 +43,7 @@ const Contact = () => {
       {/* Background decoration */}
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[128px]" />
       <div className="absolute top-1/2 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-[96px]" />
-      
+
       <div className="container mx-auto px-6">
         <div className="max-w-5xl mx-auto">
           {/* Section Header */}
@@ -58,12 +59,22 @@ const Contact = () => {
 
           <div className="grid lg:grid-cols-5 gap-12">
             {/* Left - Contact Info */}
-            <div className="lg:col-span-2 space-y-8">
-              <div className="glass rounded-2xl p-8 neon-border">
+            <div className="lg:col-span-2 space-y-4">
+              {/* LaserFlow above Get in Touch card */}
+              <div className="relative h-12 overflow-hidden rounded-xl glass-subtle">
+                <LaserFlow
+                  color="hsl(186, 100%, 50%)"
+                  beamCount={5}
+                  speed={2.5}
+                  beamWidth={2}
+                />
+              </div>
+
+              <div className="glass-card rounded-2xl p-8 border border-primary/20">
                 <h3 className="text-xl font-display font-semibold mb-6">Get in Touch</h3>
-                
+
                 <div className="space-y-6">
-                  <a 
+                  <a
                     href="mailto:erdemkorkmaz06@gmail.com"
                     className="flex items-center gap-4 text-foreground/80 hover:text-primary transition-colors group"
                   >
@@ -88,23 +99,23 @@ const Contact = () => {
                 </div>
 
                 {/* Social Links */}
-                <div className="mt-8 pt-8 border-t border-border">
+                <div className="mt-8 pt-8 border-t border-border/50">
                   <p className="text-sm text-muted-foreground mb-4">Follow me on</p>
                   <div className="flex gap-4">
-                    <a 
-                      href="https://github.com/erdemkorkmazdev" 
-                      target="_blank" 
+                    <a
+                      href="https://github.com/erdemkorkmazdev"
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="p-3 rounded-lg bg-muted hover:bg-primary/10 hover:text-primary transition-all"
+                      className="p-3 rounded-lg glass-card hover:bg-primary/10 hover:text-primary transition-all"
                       aria-label="GitHub"
                     >
                       <Github className="w-5 h-5" />
                     </a>
-                    <a 
-                      href="https://linkedin.com/in/erdem-korkmaz-14a3b91b4" 
-                      target="_blank" 
+                    <a
+                      href="https://linkedin.com/in/erdem-korkmaz-14a3b91b4"
+                      target="_blank"
                       rel="noopener noreferrer"
-                      className="p-3 rounded-lg bg-muted hover:bg-primary/10 hover:text-primary transition-all"
+                      className="p-3 rounded-lg glass-card hover:bg-primary/10 hover:text-primary transition-all"
                       aria-label="LinkedIn"
                     >
                       <Linkedin className="w-5 h-5" />
@@ -116,7 +127,7 @@ const Contact = () => {
 
             {/* Right - Contact Form */}
             <div className="lg:col-span-3">
-              <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-6">
+              <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-8 space-y-6">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-medium">
@@ -129,7 +140,7 @@ const Contact = () => {
                       onChange={handleChange}
                       placeholder="Your name"
                       required
-                      className="bg-background/50 border-border focus:border-primary"
+                      className="bg-background/50 border-white/10 focus:border-primary"
                     />
                   </div>
                   <div className="space-y-2">
@@ -144,7 +155,7 @@ const Contact = () => {
                       onChange={handleChange}
                       placeholder="your@email.com"
                       required
-                      className="bg-background/50 border-border focus:border-primary"
+                      className="bg-background/50 border-white/10 focus:border-primary"
                     />
                   </div>
                 </div>
@@ -161,13 +172,13 @@ const Contact = () => {
                     placeholder="Tell me about your project or opportunity..."
                     rows={5}
                     required
-                    className="bg-background/50 border-border focus:border-primary resize-none"
+                    className="bg-background/50 border-white/10 focus:border-primary resize-none"
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  size="lg" 
+                <Button
+                  type="submit"
+                  size="lg"
                   disabled={isSubmitting}
                   className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 neon-glow"
                 >
