@@ -1,27 +1,27 @@
 import { Github, Linkedin, Mail, ChevronDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Noise from '@/components/animations/Noise';
-import heroBg from '@/assets/hero-bg.jpg';
+import OrbBackground from '@/components/animations/OrbBackground';
+import { useI18n } from '@/i18n/LanguageContext';
 
 const Hero = () => {
+  const { t } = useI18n();
+
   const scrollToProjects = () => {
     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={heroBg}
-          alt="Futuristic background"
-          className="w-full h-full object-cover opacity-40"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+      {/* Orb Background - Vue-bits style WebGL */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center">
+        <div className="w-[1000px] h-[1000px]">
+          <OrbBackground hue={180} hoverIntensity={0.3} rotateOnHover={true} />
+        </div>
       </div>
 
       {/* Animated Grid */}
-      <div className="absolute inset-0 z-0 opacity-20">
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
         <div className="absolute inset-0" style={{
           backgroundImage: `linear-gradient(hsl(var(--primary) / 0.1) 1px, transparent 1px),
                            linear-gradient(90deg, hsl(var(--primary) / 0.1) 1px, transparent 1px)`,
@@ -29,19 +29,15 @@ const Hero = () => {
         }} />
       </div>
 
-      {/* Glowing orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] animate-pulse-glow" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[128px] animate-pulse-glow delay-1000" />
-
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 text-center">
+      <div className="relative z-10 container mx-auto px-6 text-center pointer-events-none">
         <div className="space-y-8 max-w-4xl mx-auto">
           {/* Badge with Noise Effect */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass neon-border animate-fade-in relative overflow-hidden">
             {/* Noise overlay for glitch effect */}
             <Noise patternAlpha={8} mixBlendMode="overlay" patternRefreshInterval={3} />
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse relative z-10" />
-            <span className="text-sm font-medium text-muted-foreground relative z-10">Open to opportunities</span>
+            <span className="text-sm font-medium text-muted-foreground relative z-10">{t('hero.status')}</span>
           </div>
 
           {/* Name */}
@@ -53,67 +49,39 @@ const Hero = () => {
 
           {/* Title */}
           <p className="text-xl md:text-2xl text-muted-foreground font-light animate-fade-in delay-200">
-            Frontend & Mobile App Developer
+            {t('hero.title')}
           </p>
 
           {/* Tagline */}
           <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed animate-fade-in delay-300">
-            I build <span className="text-primary font-medium">real-time dashboards</span> and{' '}
-            <span className="text-secondary font-medium">cross-platform apps</span> that connect people, data, and design.
+            {t('hero.tagline')}
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-4 animate-fade-in delay-400">
-            <Button
-              onClick={scrollToProjects}
-              size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 neon-glow font-medium px-8"
-            >
-              View Projects
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-border hover:bg-muted font-medium px-8"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download CV
-            </Button>
-          </div>
+          <div className="flex flex-col items-center gap-12 animate-fade-in delay-400 pointer-events-auto">
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Button
+                onClick={scrollToProjects}
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 neon-glow font-medium px-8"
+              >
+                {t('hero.viewProjects')}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-border hover:bg-muted font-medium px-8"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {t('hero.downloadCv')}
+              </Button>
+            </div>
 
-          {/* Social Links */}
-          <div className="flex items-center justify-center gap-6 animate-fade-in delay-500">
-            <a
-              href="https://github.com/erdemkorkmazdev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-full glass hover:neon-border transition-all duration-300 group"
-              aria-label="GitHub"
-            >
-              <Github className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-            </a>
-            <a
-              href="https://linkedin.com/in/erdem-korkmaz-14a3b91b4"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-full glass hover:neon-border transition-all duration-300 group"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-            </a>
-            <a
-              href="mailto:erdemkorkmaz06@gmail.com"
-              className="p-3 rounded-full glass hover:neon-border transition-all duration-300 group"
-              aria-label="Email"
-            >
-              <Mail className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-            </a>
+            {/* Scroll indicator - Moved inside flow with gap */}
+            <div className="animate-bounce">
+              <ChevronDown className="w-6 h-6 text-muted-foreground" />
+            </div>
           </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-6 h-6 text-muted-foreground" />
         </div>
       </div>
     </section>

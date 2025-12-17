@@ -1,152 +1,144 @@
 import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
 interface GhostCursorProps {
   color?: string;
-  trailLength?: number;
-  lineWidth?: number;
-  className?: string;
+  size?: number;
+  intensity?: number;
 }
 
 const GhostCursor = ({
-  color = 'hsl(186, 100%, 50%)',
-  trailLength = 40,
-  lineWidth = 4,
-  className = ''
+  color = '#ff0443ff',
+  size = 0.58,
+  intensity = 0.02
 }: GhostCursorProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const points = useRef<{ x: number; y: number; age: number }[]>([]);
-  const mouse = useRef({ x: 0, y: 0 });
-  const animationRef = useRef<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!containerRef.current) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      powerPreference: "high-performance",
+      antialias: false,
+      stencil: false,
+      depth: false
+    });
 
-    const parent = canvas.parentElement;
-    if (!parent) return;
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    containerRef.current.appendChild(renderer.domElement);
 
-    const resize = () => {
-      const rect = parent.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-      ctx.scale(dpr, dpr);
-    };
+    // Fullscreen quad with glow shader
+    const geometry = new THREE.PlaneGeometry(2, 2);
+
+    const vertexShader = `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1.0);
+      }
+    `;
+
+    const fragmentShader = `
+      uniform float uTime;
+      uniform vec2 uMouse;
+      uniform vec2 uResolution;
+      uniform vec3 uColor;
+      uniform float uSize;
+      uniform float uIntensity;
+      varying vec2 vUv;
+
+      void main() {
+        vec2 uv = vUv;
+        // Aspect ratio correction
+        vec2 ratio = vec2(uResolution.x / uResolution.y, 1.0);
+        vec2 normalizedMouse = uMouse * ratio;
+        vec2 normalizedUv = uv * ratio;
+        
+        vec2 d = normalizedUv - normalizedMouse;
+        float dist = length(d);
+        
+        // Soft glow effect
+        float glow = uIntensity / (dist + 0.01);
+        
+        // Soft Falloff
+        float alpha = smoothstep(uSize, 0.0, dist);
+        
+        vec3 col = uColor * glow;
+        
+        gl_FragColor = vec4(col, alpha * glow * 0.5);
+      }
+    `;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+        uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        uColor: { value: new THREE.Color(color) },
+        uSize: { value: size },
+        uIntensity: { value: intensity }
+      },
+      vertexShader,
+      fragmentShader,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    // Mouse position - directly set, no smoothing
+    const mouse = new THREE.Vector2(0.5, 0.5);
 
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = parent.getBoundingClientRect();
-      mouse.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      };
+      // Normalize to 0..1, instant update
+      mouse.x = e.clientX / window.innerWidth;
+      mouse.y = 1.0 - e.clientY / window.innerHeight;
     };
 
-    resize();
-    window.addEventListener('resize', resize);
-    parent.addEventListener('mousemove', handleMouseMove);
-
-    const animate = () => {
-      const rect = parent.getBoundingClientRect();
-      ctx.clearRect(0, 0, rect.width, rect.height);
-
-      // Add new point
-      points.current.push({
-        x: mouse.current.x,
-        y: mouse.current.y,
-        age: 0
-      });
-
-      // Update and draw points
-      points.current = points.current.filter(point => {
-        point.age += 1;
-        return point.age < trailLength;
-      });
-
-      // Draw trail
-      if (points.current.length > 1) {
-        ctx.beginPath();
-        ctx.moveTo(points.current[0].x, points.current[0].y);
-
-        for (let i = 1; i < points.current.length; i++) {
-          const point = points.current[i];
-          const prevPoint = points.current[i - 1];
-
-          // Smooth curve
-          const midX = (prevPoint.x + point.x) / 2;
-          const midY = (prevPoint.y + point.y) / 2;
-          ctx.quadraticCurveTo(prevPoint.x, prevPoint.y, midX, midY);
-        }
-
-        // Draw with gradient
-        const gradient = ctx.createLinearGradient(
-          points.current[0].x, points.current[0].y,
-          points.current[points.current.length - 1].x,
-          points.current[points.current.length - 1].y
-        );
-        gradient.addColorStop(0, 'transparent');
-        gradient.addColorStop(0.3, color);
-        gradient.addColorStop(1, color);
-
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = lineWidth;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.stroke();
-
-        // Draw glow layer
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = color;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      }
-
-      // Draw cursor dot with glow
-      if (points.current.length > 0) {
-        const lastPoint = points.current[points.current.length - 1];
-
-        // Outer glow
-        ctx.beginPath();
-        ctx.arc(lastPoint.x, lastPoint.y, lineWidth + 6, 0, Math.PI * 2);
-        ctx.fillStyle = color.replace(')', ', 0.2)').replace('hsl', 'hsla');
-        ctx.fill();
-
-        // Main dot
-        ctx.beginPath();
-        ctx.arc(lastPoint.x, lastPoint.y, lineWidth + 2, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = color;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // Inner bright core
-        ctx.beginPath();
-        ctx.arc(lastPoint.x, lastPoint.y, lineWidth / 2, 0, Math.PI * 2);
-        ctx.fillStyle = 'white';
-        ctx.fill();
-      }
-
-      animationRef.current = requestAnimationFrame(animate);
+    const handleResize = () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
     };
 
-    animate();
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', handleResize);
+
+    let animationId: number;
+    const animate = (time: number) => {
+      animationId = requestAnimationFrame(animate);
+
+      material.uniforms.uTime.value = time * 0.001;
+      // Direct mouse position - no interpolation/delay
+      material.uniforms.uMouse.value.copy(mouse);
+
+      renderer.render(scene, camera);
+    };
+
+    animate(0);
 
     return () => {
-      window.removeEventListener('resize', resize);
-      parent.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationRef.current);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationId);
+      if (containerRef.current) {
+        containerRef.current.removeChild(renderer.domElement);
+      }
+      geometry.dispose();
+      material.dispose();
+      renderer.dispose();
     };
-  }, [color, trailLength, lineWidth]);
+  }, [color, size, intensity]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className={`absolute inset-0 pointer-events-none z-10 ${className}`}
+    <div
+      ref={containerRef}
+      className="fixed inset-0 pointer-events-none z-50"
     />
   );
 };

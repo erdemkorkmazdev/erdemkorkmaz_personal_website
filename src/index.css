@@ -98,6 +98,11 @@
   ::selection {
     @apply bg-primary/30;
   }
+
+  .rtl {
+    direction: rtl;
+    text-align: right;
+  }
 }
 
 @layer components {

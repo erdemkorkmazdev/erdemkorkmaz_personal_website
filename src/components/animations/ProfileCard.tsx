@@ -1,232 +1,154 @@
-import { useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useRef, useState } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { ArrowUpRight } from 'lucide-react';
+import LaserFlow from './LaserFlow';
 
 interface ProfileCardProps {
-  avatarUrl?: string;
   name: string;
   title: string;
-  handle?: string;
-  status?: string;
+  handle: string;
+  status: string;
   onContactClick?: () => void;
-  className?: string;
 }
 
-// Floating code particles
-const CodeParticle = ({ delay }: { delay: number }) => {
-  const chars = ['{ }', '< />', '( )', '[ ]', '= >', '&&', '||', '++', '::'];
-  const char = chars[Math.floor(Math.random() * chars.length)];
-
-  return (
-    <motion.div
-      className="absolute text-primary/30 font-mono text-sm pointer-events-none select-none"
-      initial={{
-        x: Math.random() * 100 - 50 + '%',
-        y: '100%',
-        opacity: 0,
-        rotate: Math.random() * 30 - 15
-      }}
-      animate={{
-        y: '-20%',
-        opacity: [0, 0.6, 0.6, 0],
-        rotate: Math.random() * 60 - 30
-      }}
-      transition={{
-        duration: 4 + Math.random() * 2,
-        delay: delay,
-        repeat: Infinity,
-        ease: 'linear'
-      }}
-    >
-      {char}
-    </motion.div>
-  );
-};
-
-const ProfileCard = ({
-  avatarUrl,
-  name,
-  title,
-  handle = '',
-  status = 'Online',
-  onContactClick,
-  className = ''
-}: ProfileCardProps) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0, x: 50, y: 50 });
+const ProfileCard = ({ name, title, handle, status, onContactClick }: ProfileCardProps) => {
+  const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
+  // Mouse position
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+  // Smooth springs for rotation
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
 
-    const centerX = x - 50;
-    const centerY = y - 50;
+  // Calculate rotation based on mouse position
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['10deg', '-10deg']);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-10deg', '10deg']);
 
-    setTransform({
-      rotateX: -(centerY / 6), // Increased tilt
-      rotateY: centerX / 6,
-      x,
-      y
-    });
+  // Handle mouse move
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+
+    x.set(xPct);
+    y.set(yPct);
   };
 
   const handleMouseLeave = () => {
-    setTransform({ rotateX: 0, rotateY: 0, x: 50, y: 50 });
     setIsHovered(false);
+    x.set(0);
+    y.set(0);
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
   };
 
   return (
-    <div
-      className={`relative perspective-1000 ${className}`}
-      style={{
-        '--pointer-x': `${transform.x}%`,
-        '--pointer-y': `${transform.y}%`,
-      } as React.CSSProperties}
-    >
-      {/* Animated glow behind card */}
-      <motion.div
-        className="absolute -inset-4 rounded-3xl opacity-0 blur-2xl transition-opacity duration-500"
-        animate={{
-          opacity: isHovered ? 0.6 : 0.3,
-          scale: isHovered ? 1.05 : 1
-        }}
-        style={{
-          background: `radial-gradient(circle at ${transform.x}% ${transform.y}%, hsl(var(--primary) / 0.5) 0%, hsl(var(--secondary) / 0.3) 50%, transparent 70%)`
-        }}
+    <div className="relative w-full max-w-sm mx-auto perspective-1000">
+      {/* LaserFlow Decoration - Below Card */}
+      <div className="absolute top-[73%] left-1/2 -translate-x-1/2 w-[170%] h-[300px] z-[-1] pointer-events-none opacity-50">
+        <LaserFlow
+          color="#ff0443"
+          horizontalBeamOffset={0.5}
+          verticalBeamOffset={0}
+          wispDensity={1.5}
+        />
+      </div>
+
+      {/* Behind Gradient (Ambient Glow) */}
+      <div
+        className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-primary/30 via-secondary/20 to-primary/10 blur-[80px] opacity-40 rounded-full pointer-events-none"
       />
 
       <motion.div
-        ref={cardRef}
-        className="relative rounded-2xl overflow-hidden glass-card border border-white/20 transition-transform duration-200 ease-out"
-        style={{
-          transform: `rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)`,
-          transformStyle: 'preserve-3d'
-        }}
+        ref={ref}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
-        whileHover={{ scale: 1.02 }}
+        onMouseEnter={handleMouseEnter}
+        style={{
+          rotateX,
+          rotateY,
+          transformStyle: 'preserve-3d',
+        }}
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative w-full aspect-[3/4] rounded-[2rem] bg-black/40 border border-white/10 backdrop-blur-md overflow-hidden group"
       >
-        {/* Floating code particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
-            <CodeParticle key={i} delay={i * 0.5} />
-          ))}
-        </div>
-
-        {/* Animated shine effect */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          animate={{
-            opacity: isHovered ? 0.4 : 0.15
-          }}
+        {/* Shine/Glare Effect */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20"
           style={{
-            background: `radial-gradient(circle at ${transform.x}% ${transform.y}%, hsl(var(--primary) / 0.4) 0%, transparent 50%)`
+            background: `radial-gradient(
+              circle at ${50 + x.get() * 100}% ${50 + y.get() * 100}%,
+              rgba(255,255,255,0.15) 0%,
+              transparent 60%
+            )`
           }}
         />
 
-        {/* Border glow animation */}
-        <motion.div
-          className="absolute inset-0 rounded-2xl pointer-events-none"
-          animate={{
-            opacity: isHovered ? 1 : 0,
-            boxShadow: isHovered
-              ? 'inset 0 0 0 2px hsl(var(--primary) / 0.5), 0 0 30px hsl(var(--primary) / 0.3)'
-              : 'inset 0 0 0 1px transparent'
+        {/* Grain Texture */}
+        <div
+          className="absolute inset-0 opacity-20 pointer-events-none z-10 mix-blend-overlay"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           }}
-          transition={{ duration: 0.3 }}
         />
 
-        {/* Gradient line at top */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary opacity-80" />
+        {/* Image / Content Container */}
+        <div className="absolute inset-0 flex flex-col items-center justify-between p-6 z-10">
 
-        {/* Content */}
-        <div className="relative p-8">
-          {/* Avatar */}
-          <motion.div
-            className="relative mx-auto w-28 h-28 mb-6"
-            animate={{
-              scale: isHovered ? 1.05 : 1,
-              y: isHovered ? -5 : 0
-            }}
-            transition={{ type: 'spring', stiffness: 300 }}
-          >
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={`${name} avatar`}
-                className="w-full h-full rounded-full object-cover border-2 border-primary/50"
-                style={{ boxShadow: '0 0 30px hsl(var(--primary) / 0.3)' }}
-              />
-            ) : (
-              <div
-                className="w-full h-full rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center"
-                style={{ boxShadow: '0 0 30px hsl(var(--primary) / 0.4)' }}
-              >
-                <span className="text-3xl font-display font-bold text-primary-foreground">
-                  {name.split(' ').map(n => n[0]).join('')}
-                </span>
-              </div>
-            )}
-
-            {/* Animated ring around avatar */}
-            <motion.div
-              className="absolute -inset-1 rounded-full border-2 border-primary/30"
-              animate={{
-                scale: isHovered ? [1, 1.1, 1] : 1,
-                opacity: isHovered ? [0.5, 0.8, 0.5] : 0.3
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: isHovered ? Infinity : 0,
-                ease: 'easeInOut'
-              }}
-            />
-          </motion.div>
-
-          {/* Name and title */}
-          <div className="text-center mb-4">
-            <motion.h3
-              className="text-2xl font-display font-bold"
-              animate={{ scale: isHovered ? 1.02 : 1 }}
-            >
-              {name}
-            </motion.h3>
-            <p className="text-muted-foreground mt-1">{title}</p>
+          {/* Top Bar: Status */}
+          <div className="w-full flex justify-between items-start">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 border border-white/5 backdrop-blur-sm">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-xs font-medium text-white/90">{status}</span>
+            </div>
+            {/* 3D Floating Icon/Logo placeholder */}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center">
+              <span className="font-display font-bold text-lg">EK</span>
+            </div>
           </div>
 
-          {/* Status bar */}
-          <div className="flex items-center justify-between bg-card/50 backdrop-blur-sm rounded-xl p-3 border border-border/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-sm font-semibold">{name[0]}</span>
-                )}
-              </div>
-              <div className="text-left">
-                {handle && <span className="text-sm text-muted-foreground block">@{handle}</span>}
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-muted-foreground">{status}</span>
-                </div>
-              </div>
+          {/* Center: Avatar (Placeholder for person.png) */}
+          <div className="relative w-48 h-48 my-auto">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/20 to-transparent rounded-full blur-2xl" />
+            <img
+              src="https://github.com/shadcn.png"
+              alt={name}
+              className="w-full h-full object-cover rounded-full border-2 border-white/10 relative z-10 shadow-2xl"
+              draggable={false}
+            />
+          </div>
+
+          {/* Bottom: Info */}
+          <div className="w-full space-y-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-12 pb-2 px-2 -mx-2 -mb-2 rounded-b-[2rem]">
+            <div className="text-center">
+              <h3 className="text-2xl font-display font-bold text-white mb-1">{name}</h3>
+              <p className="text-white/60 text-sm font-medium mb-2">@{handle}</p>
+              <p className="text-primary font-medium text-sm">{title}</p>
             </div>
 
-            {onContactClick && (
-              <motion.button
-                onClick={onContactClick}
-                className="px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Contact Me
-              </motion.button>
-            )}
+            <Button
+              onClick={onContactClick}
+              className="w-full bg-white text-black hover:bg-white/90 font-semibold rounded-xl h-12 shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Get in Touch
+              <ArrowUpRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
         </div>
       </motion.div>

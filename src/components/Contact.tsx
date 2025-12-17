@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import LaserFlow from '@/components/animations/LaserFlow';
+import { useI18n } from '@/i18n/LanguageContext';
 
 const Contact = () => {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -23,8 +25,8 @@ const Contact = () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     toast({
-      title: "Message sent!",
-      description: "Thanks for reaching out. I'll get back to you soon.",
+      title: t('contact.form.sent'),
+      description: t('contact.form.successMessage'),
     });
 
     setFormData({ name: '', email: '', message: '' });
@@ -48,30 +50,20 @@ const Contact = () => {
         <div className="max-w-5xl mx-auto">
           {/* Section Header */}
           <div className="mb-16 text-center">
-            <span className="text-primary font-mono text-sm tracking-widest uppercase">Contact</span>
+            <span className="text-primary font-mono text-sm tracking-widest uppercase">{t('contact.subtitle')}</span>
             <h2 className="text-3xl md:text-5xl font-display font-bold mt-4">
-              Let's Connect
+              {t('contact.title')}
             </h2>
             <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-              Have a project in mind or want to discuss opportunities? I'd love to hear from you.
+              {t('contact.description')}
             </p>
           </div>
 
           <div className="grid lg:grid-cols-5 gap-12">
             {/* Left - Contact Info */}
             <div className="lg:col-span-2 space-y-4">
-              {/* LaserFlow above Get in Touch card */}
-              <div className="relative h-12 overflow-hidden rounded-xl glass-subtle">
-                <LaserFlow
-                  color="hsl(186, 100%, 50%)"
-                  beamCount={5}
-                  speed={2.5}
-                  beamWidth={2}
-                />
-              </div>
-
-              <div className="glass-card rounded-2xl p-8 border border-primary/20">
-                <h3 className="text-xl font-display font-semibold mb-6">Get in Touch</h3>
+              <div className="glass-card rounded-b-none rounded-t-2xl p-8 border border-primary/20 text-left rtl:text-right relative z-10">
+                <h3 className="text-xl font-display font-semibold mb-6">{t('contact.getInTouch')}</h3>
 
                 <div className="space-y-6">
                   <a
@@ -82,7 +74,7 @@ const Contact = () => {
                       <Mail className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Email</p>
+                      <p className="text-sm text-muted-foreground">{t('contact.form.email')}</p>
                       <p className="font-medium">erdemkorkmaz06@gmail.com</p>
                     </div>
                   </a>
@@ -92,7 +84,7 @@ const Contact = () => {
                       <MapPin className="w-5 h-5 text-secondary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p className="text-sm text-muted-foreground">{t('about.location')}</p>
                       <p className="font-medium">Ankara, Türkiye</p>
                     </div>
                   </div>
@@ -100,7 +92,7 @@ const Contact = () => {
 
                 {/* Social Links */}
                 <div className="mt-8 pt-8 border-t border-border/50">
-                  <p className="text-sm text-muted-foreground mb-4">Follow me on</p>
+                  <p className="text-sm text-muted-foreground mb-4">{t('contact.followMe')}</p>
                   <div className="flex gap-4">
                     <a
                       href="https://github.com/erdemkorkmazdev"
@@ -123,29 +115,39 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
+
+              {/* LaserFlow below Get in Touch card - Reversed */}
+              <div className="relative h-[200px] w-full overflow-hidden rounded-b-2xl pointer-events-none z-0 opacity-80 -mt-0.5 rotate-180">
+                <LaserFlow
+                  color="#8A5CFF"
+                  horizontalBeamOffset={0.3}
+                  verticalBeamOffset={0.1}
+                  wispDensity={2.0}
+                />
+              </div>
             </div>
 
             {/* Right - Contact Form */}
             <div className="lg:col-span-3">
-              <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-8 space-y-6">
+              <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-8 space-y-6 text-left rtl:text-right">
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-medium">
-                      Name
+                      {t('contact.form.name')}
                     </label>
                     <Input
                       id="name"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Your name"
+                      placeholder={t('contact.form.name')}
                       required
                       className="bg-background/50 border-white/10 focus:border-primary"
                     />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="email" className="text-sm font-medium">
-                      Email
+                      {t('contact.form.email')}
                     </label>
                     <Input
                       id="email"
@@ -162,14 +164,14 @@ const Contact = () => {
 
                 <div className="space-y-2">
                   <label htmlFor="message" className="text-sm font-medium">
-                    Message
+                    {t('contact.form.message')}
                   </label>
                   <Textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Tell me about your project or opportunity..."
+                    placeholder={t('contact.description')}
                     rows={5}
                     required
                     className="bg-background/50 border-white/10 focus:border-primary resize-none"
@@ -185,12 +187,12 @@ const Contact = () => {
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
                       <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      Sending...
+                      {t('contact.form.sending')}
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
-                      Send Message
-                      <Send className="w-4 h-4" />
+                      {t('contact.form.send')}
+                      <Send className="w-4 h-4 rtl:rotate-180" />
                     </span>
                   )}
                 </Button>
