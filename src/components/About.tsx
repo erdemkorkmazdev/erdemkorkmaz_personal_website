@@ -1,7 +1,6 @@
 import { MapPin, Calendar, Code2 } from 'lucide-react';
 import ProfileCard from '@/components/animations/ProfileCard';
 import GhostCursor from '@/components/animations/GhostCursor';
-import LaserFlow from '@/components/animations/LaserFlow';
 import { useI18n } from '@/i18n/LanguageContext';
 
 const About = () => {
@@ -17,7 +16,15 @@ const About = () => {
       <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[128px]" />
 
       {/* Ghost Cursor Effect - Thicker, theme colored */}
-      <GhostCursor color="hsl(186, 100%, 50%)" size={1.2} intensity={0.08} />
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 10 }}>
+        <GhostCursor
+          color="hsla(249, 61%, 45%, 1.00)"
+          trailLength={5}
+          bloomStrength={0.5}
+          bloomRadius={0.05}
+          edgeIntensity={0.5}
+        />
+      </div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
@@ -38,6 +45,7 @@ const About = () => {
                 handle="erdemkorkmaz"
                 status={t('about.openToWork')}
                 onContactClick={scrollToContact}
+                avatarUrl="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Man%20Technologist.png"
               />
 
 

@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import LaserFlow from '@/components/animations/LaserFlow';
 import { useI18n } from '@/i18n/LanguageContext';
 
 const Contact = () => {
@@ -114,16 +113,6 @@ const Contact = () => {
                     </a>
                   </div>
                 </div>
-              </div>
-
-              {/* LaserFlow below Get in Touch card - Reversed */}
-              <div className="relative h-[200px] w-full overflow-hidden rounded-b-2xl pointer-events-none z-0 opacity-80 -mt-0.5 rotate-180">
-                <LaserFlow
-                  color="#8A5CFF"
-                  horizontalBeamOffset={0.3}
-                  verticalBeamOffset={0.1}
-                  wispDensity={2.0}
-                />
               </div>
             </div>
 

@@ -215,7 +215,7 @@ void main() {
       resizeObserver = new ResizeObserver(handleResize);
       resizeObserver.observe(container);
     } else {
-      window.addEventListener('resize', handleResize);
+      (window as any).addEventListener('resize', handleResize);
     }
     // Force initial sizing
     handleResize();

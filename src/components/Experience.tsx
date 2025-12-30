@@ -20,7 +20,7 @@ const experiences = [
 const education = [
   {
     type: 'education',
-    title: 'B.Sc. Computer Engineering',
+    title: 'B.Sc. Computer Engineering - %100 English',
     company: 'Atılım University',
     period: 'Graduated June 2023',
     description: [
