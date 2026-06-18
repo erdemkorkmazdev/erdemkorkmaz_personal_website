@@ -68,6 +68,8 @@ const Skills = () => {
     <section id="skills" className="py-24 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-[128px]" />
+      {/* Gradient fade into next section (Featured Work / black) */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-black pointer-events-none z-20" />
 
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto">

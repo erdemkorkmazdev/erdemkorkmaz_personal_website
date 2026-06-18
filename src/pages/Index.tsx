@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Github, Linkedin, Mail } from 'lucide-react';
 import PillNav from '@/components/animations/PillNav';
 import Dock from '@/components/animations/Dock';
+import GhostCursor from '@/components/animations/GhostCursor';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Skills from '@/components/Skills';
@@ -10,27 +11,22 @@ import Projects from '@/components/Projects';
 import Experience from '@/components/Experience';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
-
-const navItems = [
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Contact', href: '#contact' },
-];
+import { useI18n } from '@/i18n/LanguageContext';
 
 const Index = () => {
-  const [isDark, setIsDark] = useState(true);
+  const { t } = useI18n();
+
+  const navItems = [
+    { label: t('nav.about'), href: '#about' },
+    { label: t('nav.skills'), href: '#skills' },
+    { label: t('nav.projects'), href: '#projects' },
+    { label: t('nav.experience'), href: '#experience' },
+    { label: t('nav.contact'), href: '#contact' },
+  ];
 
   useEffect(() => {
-    // Set dark mode by default
     document.documentElement.classList.add('dark');
   }, []);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const dockItems = [
     {
@@ -65,12 +61,20 @@ const Index = () => {
         <link rel="canonical" href="https://erdemkorkmaz.dev" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
-        <PillNav
-          items={navItems}
-          isDark={isDark}
-          onThemeToggle={toggleTheme}
+      {/* Ghost Cursor — fixed, behind all interactive content */}
+      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 1 }}>
+        <GhostCursor
+          color="hsla(249, 61%, 45%, 1.00)"
+          trailLength={5}
+          bloomStrength={0.5}
+          bloomRadius={0.05}
+          edgeIntensity={0}
+          zIndex={1}
         />
+      </div>
+
+      <div className="min-h-screen bg-background">
+        <PillNav items={navItems} />
         <main>
           <Hero />
           <About />

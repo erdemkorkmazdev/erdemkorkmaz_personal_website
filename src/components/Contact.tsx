@@ -20,15 +20,39 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/erdemkorkmaz06@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          _subject: `Portfolio Contact: ${formData.name}`,
+        }),
+      });
 
-    toast({
-      title: t('contact.form.sent'),
-      description: t('contact.form.successMessage'),
-    });
+      if (res.ok) {
+        toast({
+          title: t('contact.form.sent'),
+          description: t('contact.form.successMessage'),
+        });
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Something went wrong. Please try again or email directly.',
+          variant: 'destructive',
+        });
+      }
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Network error. Please try again or email directly.',
+        variant: 'destructive',
+      });
+    }
 
-    setFormData({ name: '', email: '', message: '' });
     setIsSubmitting(false);
   };
 

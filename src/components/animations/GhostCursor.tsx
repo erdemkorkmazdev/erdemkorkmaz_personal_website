@@ -1,10 +1,6 @@
 
 import React, { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import './GhostCursor.css';
 
 type GhostCursorProps = {
@@ -13,10 +9,10 @@ type GhostCursorProps = {
 
   trailLength?: number;
   inertia?: number;
-  grainIntensity?: number;
-  bloomStrength?: number;
-  bloomRadius?: number;
-  bloomThreshold?: number;
+  grainIntensity?: number;   // retained for API compat — unused
+  bloomStrength?: number;    // maps to CSS blur intensity
+  bloomRadius?: number;      // retained for API compat — unused
+  bloomThreshold?: number;   // retained for API compat — unused
 
   brightness?: number;
   color?: string;
@@ -35,10 +31,7 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
   style,
   trailLength = 50,
   inertia = 0.5,
-  grainIntensity = 0.05,
   bloomStrength = 0.1,
-  bloomRadius = 0.7,
-  bloomThreshold = 0.025,
 
   brightness = 1,
   color = '#B19EEF',
@@ -50,14 +43,10 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
 
   fadeDelayMs,
   fadeDurationMs,
-  zIndex = 10
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const composerRef = useRef<EffectComposer | null>(null);
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
-  const bloomPassRef = useRef<UnrealBloomPass | null>(null);
-  const filmPassRef = useRef<ShaderPass | null>(null);
 
   // Trail circular buffer
   const trailBufRef = useRef<THREE.Vector2[]>([]);
@@ -89,6 +78,8 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
     }
   `;
 
+  // Outputs PREMULTIPLIED alpha: gl_FragColor = vec4(rgb * a, a)
+  // This is the correct format for WebGL with premultipliedAlpha:true (Safari-safe).
   const fragmentShader = `
     uniform float iTime;
     uniform vec3  iResolution;
@@ -169,66 +160,10 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
       float edgeMask = mix(1.0 - k, 1.0, distFromEdge);
 
       float outAlpha = clamp(alphaAcc * iOpacity * edgeMask, 0.0, 1.0);
-      gl_FragColor = vec4(colorAcc, outAlpha);
+      // Premultiplied output — correct for all browsers including Safari
+      gl_FragColor = vec4(colorAcc * outAlpha, outAlpha);
     }
   `;
-
-  const FilmGrainShader = useMemo(() => {
-    return {
-      uniforms: {
-        tDiffuse: { value: null },
-        iTime: { value: 0 },
-        intensity: { value: grainIntensity }
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main(){
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D tDiffuse;
-        uniform float iTime;
-        uniform float intensity;
-        varying vec2 vUv;
-
-        float hash1(float n){ return fract(sin(n)*43758.5453); }
-
-        void main(){
-          vec4 color = texture2D(tDiffuse, vUv);
-          float n = hash1(vUv.x*1000.0 + vUv.y*2000.0 + iTime) * 2.0 - 1.0;
-          color.rgb += n * intensity * color.rgb;
-          gl_FragColor = color;
-        }
-      `
-    };
-  }, [grainIntensity]);
-
-  const UnpremultiplyPass = useMemo(
-    () =>
-      new ShaderPass({
-        uniforms: { tDiffuse: { value: null } },
-        vertexShader: `
-          varying vec2 vUv;
-          void main(){
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `,
-        fragmentShader: `
-          uniform sampler2D tDiffuse;
-          varying vec2 vUv;
-          void main(){
-            vec4 c = texture2D(tDiffuse, vUv);
-            float a = max(c.a, 1e-5);
-            vec3 straight = c.rgb / a;
-            gl_FragColor = vec4(clamp(straight, 0.0, 1.0), c.a);
-          }
-        `
-      }),
-    []
-  );
 
   function calculateScale(el: HTMLElement) {
     const r = el.getBoundingClientRect();
@@ -247,30 +182,33 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
       parent.style.position = 'relative';
     }
 
+    // premultipliedAlpha:true (default) — required for Safari WebGL transparency
     const renderer = new THREE.WebGLRenderer({
-      antialias: !isTouch,
+      antialias: false,
       alpha: true,
       depth: false,
       stencil: false,
       powerPreference: isTouch ? 'low-power' : 'high-performance',
-      premultipliedAlpha: false,
       preserveDrawingBuffer: false
     });
     renderer.setClearColor(0x000000, 0);
     rendererRef.current = renderer;
 
-    renderer.domElement.style.pointerEvents = 'none';
+    const canvas = renderer.domElement;
+    canvas.style.pointerEvents = 'none';
     if (mixBlendMode) {
-      renderer.domElement.style.mixBlendMode = String(mixBlendMode);
-    } else {
-      renderer.domElement.style.removeProperty('mix-blend-mode');
+      canvas.style.mixBlendMode = String(mixBlendMode);
+    }
+    // CSS blur replaces EffectComposer bloom — compositor-level, works in all browsers
+    const blurPx = Math.round(bloomStrength * 14);
+    if (blurPx > 0) {
+      canvas.style.filter = `blur(${blurPx}px)`;
     }
 
-    host.appendChild(renderer.domElement);
+    host.appendChild(canvas);
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-
     const geom = new THREE.PlaneGeometry(2, 2);
 
     const maxTrail = Math.max(1, Math.floor(trailLength));
@@ -303,22 +241,6 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
     const mesh = new THREE.Mesh(geom, material);
     scene.add(mesh);
 
-    const composer = new EffectComposer(renderer);
-    composerRef.current = composer;
-
-    const renderPass = new RenderPass(scene, camera);
-    composer.addPass(renderPass);
-
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), bloomStrength, bloomRadius, bloomThreshold);
-    bloomPassRef.current = bloomPass;
-    composer.addPass(bloomPass);
-
-    const filmPass = new ShaderPass(FilmGrainShader as any);
-    filmPassRef.current = filmPass;
-    composer.addPass(filmPass);
-
-    composer.addPass(UnpremultiplyPass);
-
     const resize = () => {
       const rect = host.getBoundingClientRect();
       const cssW = Math.max(1, Math.floor(rect.width));
@@ -335,29 +257,24 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
       renderer.setPixelRatio(pixelRatio);
       renderer.setSize(cssW, cssH, false);
 
-      composer.setPixelRatio?.(pixelRatio);
-      composer.setSize(cssW, cssH);
-
       const wpx = Math.max(1, Math.floor(cssW * pixelRatio));
       const hpx = Math.max(1, Math.floor(cssH * pixelRatio));
       material.uniforms.iResolution.value.set(wpx, hpx, 1);
       material.uniforms.iScale.value = calculateScale(host);
-      bloomPass.setSize(wpx, hpx);
     };
 
     resize();
     const ro = new ResizeObserver(resize);
     resizeObsRef.current = ro;
-    ro.observe(parent);
     ro.observe(host);
 
     const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
+
     const animate = () => {
       const now = performance.now();
       const t = (now - start) / 1000;
 
       const mat = materialRef.current!;
-      const comp = composerRef.current!;
 
       if (pointerActiveRef.current) {
         velocityRef.current.set(
@@ -390,11 +307,7 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
       mat.uniforms.iOpacity.value = fadeOpacityRef.current;
       mat.uniforms.iTime.value = t;
 
-      if (filmPassRef.current?.uniforms?.iTime) {
-        filmPassRef.current.uniforms.iTime.value = t;
-      }
-
-      comp.render();
+      renderer.render(scene, camera);
 
       if (!pointerActiveRef.current && fadeOpacityRef.current <= 0.001) {
         runningRef.current = false;
@@ -413,7 +326,6 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      // Use window dimensions for fullscreen cursor
       const x = e.clientX / window.innerWidth;
       const y = 1.0 - e.clientY / window.innerHeight;
       currentMouseRef.current.set(x, y);
@@ -422,9 +334,7 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
       ensureLoop();
     };
 
-    // Listen to window
     window.addEventListener('pointermove', onPointerMove, { passive: true });
-    // Keep active
     pointerActiveRef.current = true;
     ensureLoop();
 
@@ -439,20 +349,16 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
       scene.clear();
       geom.dispose();
       material.dispose();
-      composer.dispose();
       renderer.dispose();
 
-      if (renderer.domElement && renderer.domElement.parentElement) {
-        renderer.domElement.parentElement.removeChild(renderer.domElement);
+      if (canvas.parentElement) {
+        canvas.parentElement.removeChild(canvas);
       }
     };
   }, [
     trailLength,
     inertia,
-    grainIntensity,
     bloomStrength,
-    bloomRadius,
-    bloomThreshold,
     pixelBudget,
     fadeDelay,
     fadeDuration,
@@ -483,12 +389,6 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
   }, [edgeIntensity]);
 
   useEffect(() => {
-    if (filmPassRef.current?.uniforms?.intensity) {
-      filmPassRef.current.uniforms.intensity.value = grainIntensity;
-    }
-  }, [grainIntensity]);
-
-  useEffect(() => {
     const el = rendererRef.current?.domElement;
     if (!el) return;
     if (mixBlendMode) {
@@ -498,7 +398,9 @@ const GhostCursor: React.FC<GhostCursorProps> = ({
     }
   }, [mixBlendMode]);
 
-  const mergedStyle = useMemo<React.CSSProperties>(() => ({ zIndex, ...style }), [zIndex, style]);
+  // zIndex intentionally NOT applied to inner div — it would create a stacking context
+  // that breaks mix-blend-mode against backdrop-filter glassmorphism elements.
+  const mergedStyle = useMemo<React.CSSProperties>(() => ({ ...style }), [style]);
 
   return <div ref={containerRef} className={`ghost-cursor ${className ?? ''}`} style={mergedStyle} />;
 };

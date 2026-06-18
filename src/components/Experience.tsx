@@ -2,80 +2,80 @@ import { Briefcase, GraduationCap, Award, Building2 } from 'lucide-react';
 import { useI18n } from '@/i18n/LanguageContext';
 import ColorBends from '@/components/animations/ColorBends';
 
-const experiences = [
-  {
-    type: 'work',
-    title: 'Software Developer',
-    company: 'Enekom',
-    period: '10/2023 - Present',
-    description: [
-      'Developed real-time anomaly detection dashboards using Vue.js, React.js, HTML, CSS, and WebSocket for continuous rail-health monitoring.',
-      'Integrated AI-based image processing pipelines (PyTorch, TensorFlow) for defect detection.',
-      'Delivered maintainable, streaming-optimized UI architectures with real-time alerts.',
-      'Contributed to mobile modules (Flutter, Dart) for extended platform integration.'
-    ]
-  }
-];
-
-const education = [
-  {
-    type: 'education',
-    title: 'B.Sc. Computer Engineering - %100 English',
-    company: 'Atılım University',
-    period: 'Graduated June 2023',
-    description: [
-      'Capstone Project: Developed a mobile application for group expense splitting, using OCR with Tesseract and image processing to extract text from receipts.'
-    ]
-  }
-];
-
-const internships = [
-  {
-    type: 'internship',
-    title: 'Software Engineer Intern',
-    company: 'BITES - Defence & Aerospace Technologies',
-    period: '06/2022 - 09/2022',
-    description: [
-      'Developed core modules for a major defense industry project.',
-      'Worked on frontend and backend web development tasks.',
-      'Gained hands-on experience with React.js and enterprise-level software development.',
-      'Collaborated with cross-functional teams on mission-critical systems.'
-    ]
-  },
-  {
-    type: 'internship',
-    title: 'Software Engineer Intern',
-    company: 'T.C. Enerji ve Tabii Kaynaklar Bakanlığı',
-    period: '07/2021 - 09/2021',
-    description: [
-      'Implemented MVC and MVVM architectural patterns for web applications.',
-      'Developed backend integrations and REST API connections.',
-      'Managed database operations with MySQL and Oracle.',
-      'Contributed to government-scale enterprise applications.'
-    ]
-  }
-];
-
-const certifications = [
-  {
-    title: 'AI Coding & Machine Learning',
-    issuer: 'Altın Kariyer Academy',
-    period: '01/2024 - 05/2024'
-  },
-  {
-    title: 'Drone Building & Image Processing',
-    issuer: 'Altın Kariyer Academy',
-    period: '03/2024 - 07/2024'
-  },
-  {
-    title: 'C#, Object-Oriented Programming',
-    issuer: 'Vektörel Bilişim',
-    period: '06/2019'
-  }
-];
-
 const Experience = () => {
   const { t } = useI18n();
+
+  const experiences = [
+    {
+      type: 'work',
+      title: t('experienceContent.enekom.title'),
+      company: t('experienceContent.enekom.company'),
+      period: t('experienceContent.enekom.period'),
+      description: [
+        t('experienceContent.enekom.desc1'),
+        t('experienceContent.enekom.desc2'),
+        t('experienceContent.enekom.desc3'),
+        t('experienceContent.enekom.desc4')
+      ]
+    }
+  ];
+
+  const education = [
+    {
+      type: 'education',
+      title: t('experienceContent.education.title'),
+      company: t('experienceContent.education.company'),
+      period: t('experienceContent.education.period'),
+      description: [
+        t('experienceContent.education.desc')
+      ]
+    }
+  ];
+
+  const internships = [
+    {
+      type: 'internship',
+      title: t('experienceContent.bites.title'),
+      company: t('experienceContent.bites.company'),
+      period: t('experienceContent.bites.period'),
+      description: [
+        t('experienceContent.bites.desc1'),
+        t('experienceContent.bites.desc2'),
+        t('experienceContent.bites.desc3'),
+        t('experienceContent.bites.desc4')
+      ]
+    },
+    {
+      type: 'internship',
+      title: t('experienceContent.ministry.title'),
+      company: t('experienceContent.ministry.company'),
+      period: t('experienceContent.ministry.period'),
+      description: [
+        t('experienceContent.ministry.desc1'),
+        t('experienceContent.ministry.desc2'),
+        t('experienceContent.ministry.desc3'),
+        t('experienceContent.ministry.desc4')
+      ]
+    }
+  ];
+
+  const certifications = [
+    {
+      title: t('experienceContent.cert1.title'),
+      issuer: t('experienceContent.cert1.issuer'),
+      period: t('experienceContent.cert1.period')
+    },
+    {
+      title: t('experienceContent.cert2.title'),
+      issuer: t('experienceContent.cert2.issuer'),
+      period: t('experienceContent.cert2.period')
+    },
+    {
+      title: t('experienceContent.cert3.title'),
+      issuer: t('experienceContent.cert3.issuer'),
+      period: t('experienceContent.cert3.period')
+    }
+  ];
 
   return (
     <section id="experience" className="py-24 relative overflow-hidden">
@@ -110,8 +110,6 @@ const Experience = () => {
                   <Briefcase className="w-5 h-5 text-primary" />
                   <h3 className="text-xl font-display font-semibold">{t('experience.work')}</h3>
                 </div>
-                {/* Section Checkpoint */}
-                <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_theme(colors.primary.DEFAULT)] z-10" />
               </div>
 
               {experiences.map((exp, index) => (
@@ -146,7 +144,6 @@ const Experience = () => {
                   <Building2 className="w-5 h-5" style={{ color: 'hsl(280, 80%, 60%)' }} />
                   <h3 className="text-xl font-display font-semibold">{t('experience.internships')}</h3>
                 </div>
-                <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[hsl(280,80%,60%)] shadow-[0_0_10px_hsl(280,80%,60%)] z-10" />
               </div>
 
               {internships.map((intern, index) => (
@@ -182,7 +179,6 @@ const Experience = () => {
                   <GraduationCap className="w-5 h-5 text-secondary" />
                   <h3 className="text-xl font-display font-semibold">{t('experience.education')}</h3>
                 </div>
-                <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-secondary shadow-[0_0_10px_theme(colors.secondary.DEFAULT)] z-10" />
               </div>
 
               {education.map((edu, index) => (
@@ -217,7 +213,6 @@ const Experience = () => {
                   <Award className="w-5 h-5 text-primary" />
                   <h3 className="text-xl font-display font-semibold">{t('experience.certifications')}</h3>
                 </div>
-                <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_theme(colors.primary.DEFAULT)] z-10" />
               </div>
 
               <div className="grid md:grid-cols-3 gap-4 pl-20 md:pl-0 md:ml-[calc(50%+1rem)] md:w-[calc(50%-2rem)]">

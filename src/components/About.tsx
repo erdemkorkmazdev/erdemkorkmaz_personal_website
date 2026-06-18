@@ -1,6 +1,5 @@
 import { MapPin, Calendar, Code2 } from 'lucide-react';
 import ProfileCard from '@/components/animations/ProfileCard';
-import GhostCursor from '@/components/animations/GhostCursor';
 import { useI18n } from '@/i18n/LanguageContext';
 
 const About = () => {
@@ -14,17 +13,6 @@ const About = () => {
     <section id="about" className="py-24 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[128px]" />
-
-      {/* Ghost Cursor Effect - Thicker, theme colored */}
-      <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 10 }}>
-        <GhostCursor
-          color="hsla(249, 61%, 45%, 1.00)"
-          trailLength={5}
-          bloomStrength={0.5}
-          bloomRadius={0.05}
-          edgeIntensity={0.5}
-        />
-      </div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
@@ -99,7 +87,7 @@ const About = () => {
                   </div>
                   <div className="text-left rtl:text-right">
                     <p className="text-sm font-medium">{t('about.age')}</p>
-                    <p className="text-xs text-muted-foreground">26</p>
+                    <p className="text-xs text-muted-foreground">27</p>
                   </div>
                 </div>
                 <div className="glass-card rounded-xl p-4 flex items-center gap-3 hover-lift">
@@ -118,16 +106,16 @@ const About = () => {
                 <h4 className="text-sm font-mono text-primary uppercase tracking-widest mb-4 text-left rtl:text-right">{t('about.languages')}</h4>
                 <div className="flex flex-wrap gap-3">
                   <div className="px-4 py-2 rounded-lg bg-muted/50 border border-white/10">
-                    <span className="text-sm font-medium">English</span>
-                    <span className="text-xs text-muted-foreground ml-2">Advanced</span>
+                    <span className="text-sm font-medium">{t('about.languageNames.english')}</span>
+                    <span className="text-xs text-muted-foreground ml-2 rtl:ml-0 rtl:mr-2">{t('about.languageLevels.advanced')}</span>
                   </div>
                   <div className="px-4 py-2 rounded-lg bg-muted/50 border border-white/10">
-                    <span className="text-sm font-medium">German</span>
-                    <span className="text-xs text-muted-foreground ml-2">Intermediate</span>
+                    <span className="text-sm font-medium">{t('about.languageNames.german')}</span>
+                    <span className="text-xs text-muted-foreground ml-2 rtl:ml-0 rtl:mr-2">{t('about.languageLevels.intermediate')}</span>
                   </div>
                   <div className="px-4 py-2 rounded-lg bg-muted/50 border border-white/10">
-                    <span className="text-sm font-medium">Turkish</span>
-                    <span className="text-xs text-muted-foreground ml-2">Native</span>
+                    <span className="text-sm font-medium">{t('about.languageNames.turkish')}</span>
+                    <span className="text-xs text-muted-foreground ml-2 rtl:ml-0 rtl:mr-2">{t('about.languageLevels.native')}</span>
                   </div>
                 </div>
               </div>

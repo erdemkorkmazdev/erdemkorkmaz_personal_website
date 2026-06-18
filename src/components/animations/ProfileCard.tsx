@@ -104,8 +104,8 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
         '--pointer-from-center': `${clamp(Math.hypot(percentY - 50, percentX - 50) / 50, 0, 1)}`,
         '--pointer-from-top': `${percentY / 100}`,
         '--pointer-from-left': `${percentX / 100}`,
-        '--rotate-x': `${round(-(centerX / 5))}deg`,
-        '--rotate-y': `${round(centerY / 4)}deg`
+        '--rotate-x': `${round(-(centerX / 10))}deg`,
+        '--rotate-y': `${round(centerY / 8)}deg`
       } as Record<string, string>;
 
       for (const [k, v] of Object.entries(properties)) wrap.style.setProperty(k, v);
@@ -127,7 +127,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
 
       const stillFar = Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05;
 
-      if (stillFar || document.hasFocus()) {
+      if (stillFar) {
         rafId = requestAnimationFrame(step);
       } else {
         running = false;
@@ -183,10 +183,18 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
   };
 
+  const lastMoveTimeRef = useRef(0);
+
   const handlePointerMove = useCallback(
     (event: PointerEvent) => {
       const shell = shellRef.current;
       if (!shell || !tiltEngine) return;
+
+      // Throttle to ~60fps (16ms)
+      const now = performance.now();
+      if (now - lastMoveTimeRef.current < 16) return;
+      lastMoveTimeRef.current = now;
+
       const { x, y } = getOffsets(event, shell);
       tiltEngine.setTarget(x, y);
     },

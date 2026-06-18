@@ -45,8 +45,8 @@
     background: radial-gradient(circle at var(--pointer-x) var(--pointer-y),
             var(--behind-glow-color) 0%,
             transparent var(--behind-glow-size));
-    filter: blur(50px) saturate(1.1);
-    opacity: calc(0.8 * var(--card-opacity));
+    filter: blur(40px) saturate(1.0);
+    opacity: calc(0.3 * var(--card-opacity));
     transition: opacity 200ms ease;
 }
 
@@ -169,7 +169,7 @@
 
 .pc-card:hover .pc-shine,
 .pc-card.active .pc-shine {
-    filter: brightness(0.6) contrast(1.2) saturate(0.5);
+    filter: brightness(0.4) contrast(0.9) saturate(0.4);
     animation-play-state: paused;
 }
 
@@ -200,7 +200,7 @@
         center,
         calc(var(--pointer-x) * 0.01) calc(var(--pointer-y) * 0.01);
     background-blend-mode: color-dodge;
-    filter: brightness(calc(2 - var(--pointer-from-center))) contrast(calc(var(--pointer-from-center) + 2)) saturate(calc(0.5 + var(--pointer-from-center)));
+    filter: brightness(calc(0.8 - var(--pointer-from-center) * 0.3)) contrast(calc(var(--pointer-from-center) * 0.5 + 1)) saturate(calc(0.2 + var(--pointer-from-center) * 0.3));
     mix-blend-mode: luminosity;
 }
 
@@ -224,7 +224,7 @@
             hsl(248, 25%, 80%) 12%,
             hsla(207, 40%, 30%, 0.8) 90%);
     mix-blend-mode: overlay;
-    filter: brightness(0.6) contrast(1.0);
+    filter: brightness(0.7) contrast(0.9);
     z-index: 4;
 }
 
@@ -243,8 +243,12 @@
     transform: translateX(calc(-50% + (var(--pointer-from-left) - 0.5) * 6px)) translateZ(0) scaleY(calc(1 + (var(--pointer-from-top) - 0.5) * 0.02)) scaleX(calc(1 + (var(--pointer-from-left) - 0.5) * 0.01));
     bottom: -1px;
     backface-visibility: hidden;
-    will-change: transform;
     transition: transform 120ms ease-out;
+}
+
+.pc-card:hover .pc-avatar-content .avatar,
+.pc-card.active .pc-avatar-content .avatar {
+    will-change: transform;
 }
 
 .pc-avatar-content::before {

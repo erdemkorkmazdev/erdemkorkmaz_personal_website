@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface NavItem {
   label: string;
@@ -10,15 +11,11 @@ interface NavItem {
 interface PillNavProps {
   items: NavItem[];
   className?: string;
-  isDark?: boolean;
-  onThemeToggle?: () => void;
 }
 
 const PillNav = ({
   items,
   className = '',
-  isDark = true,
-  onThemeToggle
 }: PillNavProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -115,25 +112,8 @@ const PillNav = ({
           ))}
         </div>
 
-        {/* Theme Toggle */}
-        <motion.button
-          onClick={onThemeToggle}
-          className="flex items-center justify-center w-10 h-10 rounded-full transition-colors"
-          style={{
-            background: 'rgba(255, 255, 255, 0.05)'
-          }}
-          whileHover={{
-            scale: 1.05,
-            background: 'rgba(255, 255, 255, 0.1)'
-          }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {isDark ? (
-            <Sun className="w-5 h-5 text-muted-foreground" />
-          ) : (
-            <Moon className="w-5 h-5 text-muted-foreground" />
-          )}
-        </motion.button>
+        {/* Language Switcher */}
+        <LanguageSwitcher />
 
         {/* Mobile Menu Toggle */}
         <motion.button

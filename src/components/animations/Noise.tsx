@@ -46,7 +46,10 @@ const Noise = ({
       }
     };
 
+    const isVisibleRef = { current: true };
+
     const loop = () => {
+      if (!isVisibleRef.current) return;
       if (frameRef.current % Math.max(1, Math.round(patternRefreshInterval)) === 0) {
         drawGrain();
         if (noiseDataRef.current) {
@@ -56,6 +59,18 @@ const Noise = ({
       frameRef.current++;
       animationIdRef.current = requestAnimationFrame(loop);
     };
+
+    const visObserver = new IntersectionObserver(
+      ([entry]) => {
+        const wasVisible = isVisibleRef.current;
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && !wasVisible) {
+          animationIdRef.current = requestAnimationFrame(loop);
+        }
+      },
+      { rootMargin: '50px' }
+    );
+    visObserver.observe(canvas);
 
     resize();
     initImageData();
@@ -67,6 +82,7 @@ const Noise = ({
 
     return () => {
       cancelAnimationFrame(animationIdRef.current);
+      visObserver.disconnect();
     };
   }, [patternRefreshInterval, patternAlpha]);
 

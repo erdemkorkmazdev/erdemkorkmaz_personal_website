@@ -214,7 +214,8 @@ export default function Orb({
       gl.canvas.style.height = height + 'px';
       program.uniforms.iResolution.value.set(gl.canvas.width, gl.canvas.height, gl.canvas.width / gl.canvas.height);
     }
-    window.addEventListener('resize', resize);
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(container);
     resize();
 
     let targetHover = 0;
@@ -249,9 +250,11 @@ export default function Orb({
     container.addEventListener('mouseleave', handleMouseLeave);
 
     let rafId: number;
+    const isVisibleRef = { current: true };
+
     const update = (t: number) => {
-      rafId = requestAnimationFrame(update);
-      const dt = (t - lastTime) * 0.001;
+      if (!isVisibleRef.current) return;
+      const dt = lastTime === 0 ? 0.016 : (t - lastTime) * 0.001;
       lastTime = t;
       program.uniforms.iTime.value = t * 0.001;
       program.uniforms.hue.value = hue;
@@ -266,12 +269,28 @@ export default function Orb({
       program.uniforms.rot.value = currentRot;
 
       renderer.render({ scene: mesh });
+      rafId = requestAnimationFrame(update);
     };
+
+    // Large rootMargin prevents false-negative intersection during window resize
+    const visObserver = new IntersectionObserver(
+      ([entry]) => {
+        const wasVisible = isVisibleRef.current;
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && !wasVisible) {
+          lastTime = 0;
+          rafId = requestAnimationFrame(update);
+        }
+      },
+      { rootMargin: '800px' }
+    );
+    visObserver.observe(container);
     rafId = requestAnimationFrame(update);
 
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', resize);
+      visObserver.disconnect();
+      resizeObserver.disconnect();
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mouseleave', handleMouseLeave);
       container.removeChild(gl.canvas);

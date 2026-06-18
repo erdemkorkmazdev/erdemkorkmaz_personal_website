@@ -221,8 +221,10 @@ void main() {
     handleResize();
 
     let rafId: number;
+    const isVisibleRef = { current: true };
 
     const loop = () => {
+      if (!isVisibleRef.current) return;
       const dt = clock.getDelta();
       const elapsed = clock.elapsedTime;
       material.uniforms.uTime.value = elapsed;
@@ -242,6 +244,19 @@ void main() {
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(loop);
     };
+
+    // Pause when off-screen
+    const visObserver = new IntersectionObserver(
+      ([entry]) => {
+        const wasVisible = isVisibleRef.current;
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && !wasVisible) {
+          rafId = requestAnimationFrame(loop);
+        }
+      },
+      { rootMargin: '100px' }
+    );
+    visObserver.observe(container);
     rafId = requestAnimationFrame(loop);
 
     const handlePointerMove = (e: PointerEvent) => {
@@ -254,6 +269,7 @@ void main() {
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
+      visObserver.disconnect();
       if (resizeObserver) resizeObserver.disconnect();
       else window.removeEventListener('resize', handleResize);
       window.removeEventListener('pointermove', handlePointerMove as any);
